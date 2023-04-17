@@ -2,7 +2,25 @@
   <q-page class="flex flex-center column">
     <div v-if="showStart" class="flex flex-center column">
       <h5>Hario v60 4:6 method timer</h5>
-      <q-input v-model="coffeeAmount" label="Amount of coffee (in grams)" />
+      <q-input v-model.number="coffeeAmount" type="number" label="Amount of coffee (in grams)" />
+      <h6>Select flavor profile</h6>
+      <q-slider
+        v-model="flavorProfile"
+        markers
+        :marker-labels="flavorProfileMarkerLabels"
+        snap
+        :min="1"
+        :max="5"
+      />
+      <h6>Select coffee strength</h6>
+      <q-slider
+        v-model="strength"
+        markers
+        :marker-labels="strengthMarkerLabels"
+        snap
+        :min="1"
+        :max="5"
+      />
       <q-btn color="white" text-color="black" label="Start" @click="onClick()"/>
     </div>
     <div v-if="!showStart">
@@ -48,13 +66,42 @@ export default defineComponent({
           startTimerInterval: null,
           mainTimerInterval: null,
           currentAction: "Wait",
-          durationPerPour: 45
+          durationPerPour: 10,
+          flavorProfile: 3,
+          flavorProfileMarkerLabels: {1: 'More sweet', 5: 'More acidic'},
+          strength: 3,
+          strengthMarkerLabels: {1: 'Lighter', 5: 'Stronger'},
+          pours: []
       }
   },
   methods: {
+      setInitialValues() {
+        this.showStart = false
+        this.showStartTimer = true
+        this.startTime = 3
+        this.currentAction = "Ready"
+        this.remainingPours = this.pours.length
+
+      },
       onClick() {
-        this.remainingPours = 5
-        this.waterAmount = this.coffeeAmount * 3
+        this.pours = []
+        this.remainingPours = this.pours.length
+        //this.waterAmount = this.coffeeAmount * 3
+        let waterAmount = this.coffeeAmount * 3
+
+        let flavorWaterTotalAmount = waterAmount * 2
+        let strengthWaterTotalAmount = waterAmount * 3
+
+        let firstPourWater = (flavorWaterTotalAmount/6) * this.flavorProfile
+        let secondPourWater = flavorWaterTotalAmount - firstPourWater
+        let strengthPourWater = strengthWaterTotalAmount / this.strength
+
+        this.pours.push(Math.round(firstPourWater))
+        this.pours.push(Math.round(secondPourWater))
+        for (let i = 0; i < this.strength; i++) {
+          this.pours.push(Math.round(strengthPourWater))
+        }
+
         this.startTimer()
       },
       onBack() {
@@ -68,12 +115,8 @@ export default defineComponent({
         this.startTimer()
       },
       startTimer() {
-        this.showStart = false
-        this.showStartTimer = true
-        this.startTime = 3
-        this.currentAction = "Ready"
-        this.remainingPours = 5
-
+        this.setInitialValues()
+        this.waterAmount = this.pours[0]
         this.startTimerInterval = setInterval(() => {
           if (this.startTime == 0) {
             clearInterval(this.startTimerInterval)
@@ -87,21 +130,29 @@ export default defineComponent({
         this.showStartTimer = false
         this.mainTime = this.durationPerPour
         this.currentAction = "Pour"
+        this.waterAmount = this.pours[Math.abs(this.remainingPours-(this.pours.length - 1))]
+        console.log(this.pours)
+        console.log(this.remainingPours)
+        console.log(Math.abs(this.remainingPours-4))
         this.mainTimerInterval = setInterval(() => {
-          if (this.mainTime == 1) {
-            clearInterval(this.mainTimerInterval)
-            if (this.remainingPours > 0) {
-              this.startMainTimer()
+          if (this.mainTime <= 6) {
+            if (this.remainingPours == 0) {
+              this.currentAction = "Almost done!"
             } else{
-              this.currentAction = "Done"
+              this.currentAction = "Prepare for next pour"
             }
-            this.remainingPours -= 1
           }
 
-          this.mainTime -= 1
-          if (this.mainTime <= 5) {
-            this.currentAction = "Prepare for next pour"
+          if (this.mainTime == 1) {
+            clearInterval(this.mainTimerInterval)
+            this.remainingPours -= 1
+            if (this.remainingPours >= 0) {
+              this.startMainTimer()
+            } else {
+              this.currentAction = "Done"
+            }
           }
+          this.mainTime -= 1
         }, 1000)
       }
   }
