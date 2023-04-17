@@ -66,7 +66,7 @@ export default defineComponent({
           startTimerInterval: null,
           mainTimerInterval: null,
           currentAction: "Wait",
-          durationPerPour: 10,
+          durationPerPour: 45,
           flavorProfile: 3,
           flavorProfileMarkerLabels: {1: 'More sweet', 5: 'More acidic'},
           strength: 3,
