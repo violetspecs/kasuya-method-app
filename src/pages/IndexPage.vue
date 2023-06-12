@@ -1,30 +1,42 @@
 <template>
-  <q-page class="flex flex-center column">
-    <div v-if="showStart" class="flex flex-center column">
+  <q-page class="flex justify-center row">
+    <div v-if="showStart" class="flex column justify-evenly">
       <h5>Hario v60 4:6 method timer</h5>
-      <q-input v-model.number="coffeeAmount" type="number" label="Amount of coffee (in grams)" />
-      <h6>Select flavor profile</h6>
-      <q-slider
-        v-model="flavorProfile"
-        markers
-        :marker-labels="flavorProfileMarkerLabels"
-        snap
-        :min="1"
-        :max="5"
-      />
-      <h6>Select coffee strength</h6>
-      <q-slider
-        v-model="strength"
-        markers
-        :marker-labels="strengthMarkerLabels"
-        snap
-        :min="1"
-        :max="5"
-      />
-      <q-btn color="white" text-color="black" label="Start" @click="onClick()"/>
+      <div class="row label">Amount of coffee</div>
+      <div class="row items-center label">
+        <div class="col-4"><q-input outlined v-model.number="coffeeAmount" type="number" :input-style="{ fontSize: '1.2rem' }"/></div>
+        grams
+      </div>
+      <div class="label">Select flavor profile</div>
+      <div class="row justify-center">
+        <div class="col-10">
+          <q-slider
+            v-model="flavorProfile"
+            markers
+            :marker-labels="flavorProfileMarkerLabels"
+            snap
+            :min="1"
+            :max="5"
+          />
+        </div>
+      </div>
+      <div class="label">Select coffee strength</div>
+      <div class="row justify-center">
+        <div class="col-10">
+          <q-slider
+            v-model="strength"
+            markers
+            :marker-labels="strengthMarkerLabels"
+            snap
+            :min="1"
+            :max="5"
+          />
+        </div>
+      </div>
+      <q-btn color="white" text-color="black" label="Start" @click="onClick()" size="lg"/>
     </div>
-    <div v-if="!showStart">
-      <q-card flat bordered class="my-card flex flex-center column">
+    <div v-if="!showStart" class="flex column flex-center">
+      <q-card flat bordered class="my-card flex column flex-center">
         <q-card-section>
           <div v-if="showStartTimer" class="text-h3">{{ startTime }}</div>
           <div v-if="!showStartTimer" class="text-h3">{{ mainTime }}</div>
@@ -38,13 +50,12 @@
         <q-card-section class="q-pt-none text-h5">
           Remaining pours: {{ remainingPours }}
         </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-btn color="white" text-color="black" label="Reset" @click="onReset()"/>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-btn color="white" text-color="black" label="Back" @click="onBack()"/>
-        </q-card-section>
+        <q-card-actions vertical align="stretch">
+          <q-btn color="white" text-color="black" label="Reset" @click="onReset()" size="lg"/>
+          <q-btn color="white" text-color="black" label="Back" @click="onBack()" size="lg"/>
+        </q-card-actions>
       </q-card>
+      
     </div>
   </q-page>
 </template>
@@ -158,3 +169,8 @@ export default defineComponent({
   }
 })
 </script>
+<style scoped>
+  .label {
+    font-size: 1.2rem;
+  }
+</style>
